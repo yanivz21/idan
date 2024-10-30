@@ -55,12 +55,12 @@
         .left {
             position: absolute;
             bottom: 20px;
-            left: 0;
+            right: 0; /* העברנו ימינה */
         }
         .right {
             position: absolute;
             bottom: 20px;
-            right: 0;
+            left: 0; /* העברנו שמאלה */
         }
     </style>
 </head>
@@ -69,8 +69,8 @@
     <div class="controls">
         <button class="up" onclick="changeDirection({key: 'ArrowUp'})">↑</button>
         <button class="down" onclick="changeDirection({key: 'ArrowDown'})">↓</button>
-        <button class="left" onclick="changeDirection({key: 'ArrowLeft'})">←</button>
         <button class="right" onclick="changeDirection({key: 'ArrowRight'})">→</button>
+        <button class="left" onclick="changeDirection({key: 'ArrowLeft'})">←</button>
     </div>
     <script>
         const canvas = document.getElementById('gameCanvas');
