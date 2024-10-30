@@ -30,7 +30,7 @@
         }
         .controls {
             position: absolute;
-            bottom: 10px; /* מיקום הלחצנים מתחת למסגרת */
+            bottom: 0; /* מיקום הלחצנים צמוד למסגרת התחתונה */
             left: 50%;
             transform: translateX(-50%);
             display: flex;
@@ -105,7 +105,7 @@
         const ctx = canvas.getContext('2d');
 
         let box = Math.floor(canvas.height / 30); // יחס גובה ל-30 תאים
-        const speed = 2.5; // מהירות התנועה של הנחש (50% פחות)
+        const speed = 2.5; // מהירות התנועה של הנחש
 
         let snake, direction, food, score;
         let game; // משתנה עבור המשחק
@@ -185,9 +185,9 @@
             let snakeY = snake[0].y;
 
             if (direction === 'LEFT') snakeX -= speed;
-            if (direction === 'UP') snakeY -= speed;
             if (direction === 'RIGHT') snakeX += speed;
-            if (direction === 'DOWN') snakeY += speed;
+            if (direction === 'UP') snakeY -= speed; // מהירות תנועה זהה
+            if (direction === 'DOWN') snakeY += speed; // מהירות תנועה זהה
 
             const newHead = {x: snakeX, y: snakeY};
 
@@ -210,8 +210,8 @@
                 ctx.fillRect(segment.x, segment.y, box, box);
             }
 
-            // ציור ראש הנחש עם הגדלה פי 4
-            const headSize = box * 5; // הגדלה פי 4
+            // ציור ראש הנחש וגוף הנחש באותו גודל
+            const headSize = box * 5; // גודל ראש
             ctx.drawImage(score >= 5 ? snakeHeadImg2 : snakeHeadImg, snakeX, snakeY, headSize, headSize);
 
             // ציור ההמבורגר עם הגדלה פי 4
