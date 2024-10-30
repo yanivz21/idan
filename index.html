@@ -123,8 +123,9 @@
         const rewardMessage = document.getElementById('rewardMessage');
         const timerDisplay = document.getElementById('timer');
 
-        // הורדת המהירות הכוללת ב-30% נוספים
-        const baseInterval = (window.innerWidth < 768 ? 170 : 130) * 1.3;
+        const baseSpeed = 0.15; // קצב התנועה של הנחש
+        const speedFactor = 1.3; // מפחית את מהירות המשחק
+        const speed = baseSpeed / speedFactor;
 
         canvas.width = gameContainer.clientWidth;
         canvas.height = gameContainer.clientHeight;
@@ -136,6 +137,8 @@
         let food = { x: Math.floor(Math.random() * (canvas.width / gridSize)), y: Math.floor(Math.random() * (canvas.height / gridSize)) };
         let gameInterval;
         let rewardActive = false;
+        let lastTime = 0; // זמן של ה-frame הקודם
+        let gameStarted = false;
 
         const snakeHeadImage = new Image();
         snakeHeadImage.src = 'snakeHead.png';
@@ -240,16 +243,29 @@
             startGame();
         }
 
-        function gameLoop() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            updateSnake();
-            checkCollision();
-            drawSnake();
-            drawFood();
+        function gameLoop(timestamp) {
+            if (!gameStarted) {
+                lastTime = timestamp;
+                gameStarted = true;
+            }
+
+            const deltaTime = (timestamp - lastTime) / 1000; // הזמן שחלף בשניות
+            lastTime = timestamp;
+
+            if (deltaTime > speed) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                updateSnake();
+                checkCollision();
+                drawSnake();
+                drawFood();
+            }
+
+            requestAnimationFrame(gameLoop);
         }
 
         function startGame() {
-            gameInterval = setInterval(gameLoop, baseInterval);
+            restartButton.style.display = 'none';
+            gameInterval = requestAnimationFrame(gameLoop);
             if (rewardActive) {
                 rewardActive = false; // Reset reward state
             }
