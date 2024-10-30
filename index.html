@@ -32,6 +32,14 @@
             overflow: hidden;
         }
 
+        /* הגדלת שטח המשחק במסכים קטנים */
+        @media (max-width: 768px) {
+            #gameContainer {
+                width: 88vw;
+                height: 88vw;
+            }
+        }
+
         #gameCanvas {
             display: block;
             background-color: black;
@@ -93,6 +101,9 @@
         const gameContainer = document.getElementById('gameContainer');
         const ctx = canvas.getContext('2d');
         const restartButton = document.getElementById('restartButton');
+
+        // קביעת קצב המשחק לפי סוג המסך
+        const baseInterval = window.innerWidth < 768 ? 170 : 130;
 
         canvas.width = gameContainer.clientWidth;
         canvas.height = gameContainer.clientHeight;
@@ -190,7 +201,7 @@
         }
 
         function startGame() {
-            gameInterval = setInterval(gameLoop, 130);
+            gameInterval = setInterval(gameLoop, baseInterval);
         }
 
         startGame();
