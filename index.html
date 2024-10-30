@@ -21,7 +21,7 @@
             border: 2px solid white; /* גבולות לבנים */
             background-color: #000; /* צבע רקע שחור */
             width: 80vw; /* הגבלה ל-80% מרוחב המסך */
-            height: 70vh; /* הקטנה של הגובה כדי לפנות מקום ללחצנים */
+            height: 60vh; /* הגבלה ל-60% מגובה המסך */
             position: absolute;
             top: 5%; /* מיקום כדי שהגבולות יהיו מעט גבוהים יותר */
             left: 10%;
@@ -36,8 +36,10 @@
             align-items: center;
         }
         .button {
-            width: 60px;
-            height: 60px;
+            width: 12vw; /* הגדרת רוחב כ-12% מרוחב המסך */
+            height: 12vw; /* הגדרת גובה כ-12% מרוחב המסך */
+            max-width: 60px; /* הגבלה למקסימום 60 פיקסלים */
+            max-height: 60px; /* הגבלה למקסימום 60 פיקסלים */
             cursor: pointer;
             display: flex;
             justify-content: center;
@@ -57,7 +59,7 @@
             top: 20px; /* מיקום גבוה */
             left: 50%; /* מרכז */
             transform: translateX(-50%); /* מרכז אופקית */
-            font-size: 24px;
+            font-size: 4vw; /* גודל טקסט מותאם */
             color: white;
             text-align: center; /* יישור במרכז */
         }
@@ -71,8 +73,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            padding: 20px;
-            font-size: 24px;
+            padding: 3vw; /* גודל כפתור מותאם */
+            font-size: 4vw; /* גודל טקסט מותאם */
             background-color: #fff;
             color: #000;
             border: none;
@@ -100,9 +102,7 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        const box = 20;
-        const canvasWidth = canvas.width;
-        const canvasHeight = canvas.height;
+        const box = canvas.width / 30; // יחס גובה ל-30 תאים
         const speed = 5; // מהירות התנועה של הנחש
 
         let snake, direction, food, score;
@@ -124,7 +124,7 @@
         };
 
         function startGame() {
-            snake = [{x: Math.floor(canvasWidth / box / 2) * box, y: Math.floor(canvasHeight / box / 2) * box}];
+            snake = [{x: Math.floor(canvas.width / box / 2) * box, y: Math.floor(canvas.height / box / 2) * box}];
             direction = '';
             food = spawnFood();
             score = 0;
@@ -162,9 +162,9 @@
         function spawnFood() {
             let foodX, foodY;
             do {
-                foodX = Math.floor(Math.random() * (canvasWidth / box)) * box;
-                foodY = Math.floor(Math.random() * (canvasHeight / box)) * box;
-            } while (foodX < 0 || foodX >= canvasWidth || foodY < 0 || foodY >= canvasHeight); // בדיקה שההמבורגר לא מחוץ לגבולות
+                foodX = Math.floor(Math.random() * (canvas.width / box)) * box;
+                foodY = Math.floor(Math.random() * (canvas.height / box)) * box;
+            } while (foodX < 0 || foodX >= canvas.width || foodY < 0 || foodY >= canvas.height); // בדיקה שההמבורגר לא מחוץ לגבולות
 
             return { x: foodX, y: foodY };
         }
@@ -208,16 +208,11 @@
                 ctx.fillRect(segment.x, segment.y, box, box);
                 ctx.strokeStyle = 'black';
                 ctx.strokeRect(segment.x, segment.y, box, box);
-                ctx.drawImage(foodImg, segment.x + box * 0.1, segment.y + box * 0.1, box * 0.8, box * 0.8); // ציור ההמבורגר בגוף הנחש
             }
 
-            // ציור ראש הנחש
+            // ציור ראש הנחש עם הגדלה של 30%
             const headSize = box * 1.3; // הגדלה של 30%
-            if (score >= 5) {
-                ctx.drawImage(snakeHeadImg2, snakeX, snakeY, headSize, headSize); // ציור ראש הנחש השני
-            } else {
-                ctx.drawImage(snakeHeadImg, snakeX, snakeY, headSize, headSize); // ציור ראש הנחש הרגיל
-            }
+            ctx.drawImage(score >= 5 ? snakeHeadImg2 : snakeHeadImg, snakeX, snakeY, headSize, headSize);
 
             // ציור ההמבורגר
             ctx.drawImage(foodImg, food.x, food.y, box * 0.8, box * 0.8); // ציור ההמבורגר
