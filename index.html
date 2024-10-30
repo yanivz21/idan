@@ -38,10 +38,10 @@
             align-items: center;
         }
         .button {
-            width: 15vw; /* הגדרת רוחב כ-15% מרוחב המסך */
-            height: 15vw; /* הגדרת גובה כ-15% מרוחב המסך */
-            max-width: 70px; /* הגבלה למקסימום 70 פיקסלים */
-            max-height: 70px; /* הגבלה למקסימום 70 פיקסלים */
+            width: 7.5vw; /* רוחב הלחצנים - חצי מהקודם */
+            height: 7.5vw; /* גובה הלחצנים - חצי מהקודם */
+            max-width: 35px; /* הגבלה למקסימום 35 פיקסלים */
+            max-height: 35px; /* הגבלה למקסימום 35 פיקסלים */
             cursor: pointer;
             display: flex;
             justify-content: center;
@@ -49,7 +49,7 @@
             margin: 5px;
             border: 2px solid #fff;
             background-color: transparent;
-            font-size: 3vw; /* גודל טקסט מותאם */
+            font-size: 2vw; /* גודל טקסט מותאם */
         }
         .up { background-color: red; }
         .down { background-color: blue; }
@@ -105,7 +105,7 @@
         const ctx = canvas.getContext('2d');
 
         let box = Math.floor(canvas.height / 30); // יחס גובה ל-30 תאים
-        const speed = 5; // מהירות התנועה של הנחש
+        const speed = 2.5; // מהירות התנועה של הנחש (50% פחות)
 
         let snake, direction, food, score;
         let game; // משתנה עבור המשחק
@@ -199,7 +199,6 @@
                 snake.push(newSegment); 
                 score++;
                 document.getElementById('score').innerText = score; // עדכון ניקוד
-                box = Math.floor(canvas.height / 30); // עדכון גובה הקוביה
             } else {
                 snake.pop();
             }
@@ -211,12 +210,12 @@
                 ctx.fillRect(segment.x, segment.y, box, box);
             }
 
-            // ציור ראש הנחש עם הגדלה של 30%
-            const headSize = box * 1.3; // הגדלה של 30%
+            // ציור ראש הנחש עם הגדלה פי 4
+            const headSize = box * 5; // הגדלה פי 4
             ctx.drawImage(score >= 5 ? snakeHeadImg2 : snakeHeadImg, snakeX, snakeY, headSize, headSize);
 
-            // ציור ההמבורגר
-            ctx.drawImage(foodImg, food.x, food.y, box * 0.8, box * 0.8); // ציור ההמבורגר
+            // ציור ההמבורגר עם הגדלה פי 4
+            ctx.drawImage(foodImg, food.x, food.y, box * 4, box * 4); // ציור ההמבורגר
 
             // בדיקה אם הנחש פוגע בקירות
             if (snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake)) {
