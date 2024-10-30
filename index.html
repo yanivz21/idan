@@ -18,19 +18,17 @@
             position: relative;
         }
         canvas {
-            border: 2px solid white; /* גבולות לבנים */
-            background-color: #000; /* צבע רקע שחור */
-            width: 90vw; /* 90% מרוחב המסך */
-            height: 60vh; /* 60% מגובה המסך */
-            max-width: 600px; /* הגבלת רוחב מקסימלי */
-            max-height: 400px; /* הגבלת גובה מקסימלי */
+            border: 2px solid white;
+            background-color: #000;
+            width: 80vw;
+            height: 70vh;
             position: absolute;
-            top: 5%; /* מיקום מעט גבוה */
-            left: 5%; /* מיקום מעט משמאל */
+            top: 5%;
+            left: 10%;
         }
         .controls {
             position: absolute;
-            bottom: 0; /* מיקום הלחצנים צמוד למסגרת התחתונה */
+            bottom: 5%;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
@@ -38,36 +36,24 @@
             align-items: center;
         }
         .button {
-            width: 7.5vw; /* רוחב הלחצנים - חצי מהקודם */
-            height: 7.5vw; /* גובה הלחצנים - חצי מהקודם */
-            max-width: 35px; /* הגבלה למקסימום 35 פיקסלים */
-            max-height: 35px; /* הגבלה למקסימום 35 פיקסלים */
+            width: 40px; /* הקטנת הלחצנים */
+            height: 40px;
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 5px;
+            margin: 2px;
             border: 2px solid #fff;
             background-color: transparent;
-            font-size: 2vw; /* גודל טקסט מותאם */
         }
-        .up { background-color: red; }
-        .down { background-color: blue; }
-        .left { background-color: green; }
-        .right { background-color: yellow; }
-        .horizontal { display: flex; justify-content: center; }
         .score-container {
             position: absolute;
-            top: 10px; /* מיקום גבוה */
-            left: 50%; /* מרכז */
-            transform: translateX(-50%); /* מרכז אופקית */
-            font-size: 4vw; /* גודל טקסט מותאם */
+            top: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
             color: white;
-            text-align: center; /* יישור במרכז */
-        }
-        .score-title {
-            display: inline; /* לשים באותה שורה */
-            margin: 0 5px;
+            text-align: center;
         }
         .restart-btn {
             display: none;
@@ -75,8 +61,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            padding: 4vw; /* גודל כפתור מותאם */
-            font-size: 4vw; /* גודל טקסט מותאם */
+            padding: 10px;
+            font-size: 18px;
             background-color: #fff;
             color: #000;
             border: none;
@@ -92,38 +78,21 @@
     </div>
     <canvas id="gameCanvas"></canvas>
     <div class="controls">
-        <div class="button up" onclick="setDirection('UP')">↑</div>
-        <div class="horizontal">
-            <div class="button left" onclick="setDirection('LEFT')">←</div>
-            <div class="button right" onclick="setDirection('RIGHT')">→</div>
+        <div class="button" onclick="setDirection('UP')">↑</div>
+        <div style="display: flex;">
+            <div class="button" onclick="setDirection('LEFT')">←</div>
+            <div class="button" onclick="setDirection('RIGHT')">→</div>
         </div>
-        <div class="button down" onclick="setDirection('DOWN')">↓</div>
+        <div class="button" onclick="setDirection('DOWN')">↓</div>
     </div>
     <button class="restart-btn" id="restartBtn" onclick="restartGame()">אני עדיין רעב! תתחיל מיד משחק חדש</button>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        let box = Math.floor(canvas.height / 30); // יחס גובה ל-30 תאים
-        const speed = 2.5; // מהירות התנועה של הנחש
-
+        const box = 20; // גודל תיבה
         let snake, direction, food, score;
-        let game; // משתנה עבור המשחק
-        let imagesLoaded = false;
-        const snakeHeadImg = new Image();
-        const snakeHeadImg2 = new Image(); // תמונה נוספת לראש הנחש
-        const foodImg = new Image();
-        
-        snakeHeadImg.src = 'snake_head.png';
-        snakeHeadImg2.src = 'snake_head2.png'; // הוספת תמונה שנייה לראש הנחש
-        foodImg.src = 'burger.png';
-
-        snakeHeadImg.onload = snakeHeadImg2.onload = foodImg.onload = () => {
-            if (snakeHeadImg.complete && snakeHeadImg2.complete && foodImg.complete) {
-                imagesLoaded = true;
-                startGame();
-            }
-        };
+        let game;
 
         function startGame() {
             snake = [{x: Math.floor(canvas.width / box / 2) * box, y: Math.floor(canvas.height / box / 2) * box}];
@@ -166,39 +135,31 @@
             do {
                 foodX = Math.floor(Math.random() * (canvas.width / box)) * box;
                 foodY = Math.floor(Math.random() * (canvas.height / box)) * box;
-            } while (foodX < 0 || foodX >= canvas.width || foodY < 0 || foodY >= canvas.height); // בדיקה שההמבורגר לא מחוץ לגבולות
-
+            } while (foodX < 0 || foodX >= canvas.width || foodY < 0 || foodY >= canvas.height);
             return { x: foodX, y: foodY };
         }
 
         function draw() {
-            ctx.fillStyle = '#000'; // צבע רקע שחור
+            ctx.fillStyle = '#000';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // ציור גבולות לבנים
             ctx.strokeStyle = 'white';
             ctx.lineWidth = 2; 
             ctx.strokeRect(0, 0, canvas.width, canvas.height);
 
-            // עדכון מיקום הנחש
             let snakeX = snake[0].x;
             let snakeY = snake[0].y;
 
-            if (direction === 'LEFT') snakeX -= speed;
-            if (direction === 'RIGHT') snakeX += speed;
-            if (direction === 'UP') snakeY -= speed; // מהירות תנועה זהה
-            if (direction === 'DOWN') snakeY += speed; // מהירות תנועה זהה
+            if (direction === 'LEFT') snakeX -= box;
+            if (direction === 'UP') snakeY -= box;
+            if (direction === 'RIGHT') snakeX += box;
+            if (direction === 'DOWN') snakeY += box;
 
             const newHead = {x: snakeX, y: snakeY};
 
-            // בדיקה אם הנחש פוגע באוכל
             if (snakeX < food.x + box && snakeX + box > food.x && snakeY < food.y + box && snakeY + box > food.y) {
                 food = spawnFood();
-                // הוספת גוף חדש לנחש
-                const newSegment = {x: snake[snake.length - 1].x, y: snake[snake.length - 1].y}; // הוספת ריבוע חדש
-                snake.push(newSegment); 
                 score++;
-                document.getElementById('score').innerText = score; // עדכון ניקוד
+                document.getElementById('score').innerText = score;
             } else {
                 snake.pop();
             }
@@ -210,22 +171,32 @@
                 ctx.fillRect(segment.x, segment.y, box, box);
             }
 
-            // ציור ראש הנחש וגוף הנחש באותו גודל
-            const headSize = box * 5; // גודל ראש
-            ctx.drawImage(score >= 5 ? snakeHeadImg2 : snakeHeadImg, snakeX, snakeY, headSize, headSize);
-
-            // ציור ההמבורגר עם הגדלה פי 4
-            ctx.drawImage(foodImg, food.x, food.y, box * 4, box * 4); // ציור ההמבורגר
+            snake.unshift(newHead);
 
             // בדיקה אם הנחש פוגע בקירות
             if (snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake)) {
                 clearInterval(game);
                 document.getElementById('restartBtn').style.display = 'block';
-                return; // הוספת return כדי להפסיק את התנועה
+                return;
             }
 
-            snake.unshift(newHead);
+            ctx.fillStyle = 'white';
+            ctx.fillRect(snakeX, snakeY, box, box); // ציור ראש הנחש
+            ctx.fillStyle = 'red';
+            ctx.fillRect(food.x, food.y, box, box); // ציור ההמבורגר
         }
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth * 0.8;
+            canvas.height = window.innerHeight * 0.7;
+            startGame();
+        });
+
+        window.onload = () => {
+            canvas.width = window.innerWidth * 0.8;
+            canvas.height = window.innerHeight * 0.7;
+            startGame();
+        };
     </script>
 </body>
 </html>
