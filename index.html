@@ -9,80 +9,35 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            font-family: Arial, sans-serif;
             background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
         }
-
-        #score {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-
-        #gameContainer {
-            width: 70vw;
-            height: 70vw;
-            max-width: 600px;
-            max-height: 600px;
-            background-color: white;
-            position: relative;
-            border: 2px solid #333;
-            overflow: hidden;
-        }
-
-        /* הגדלת שטח המשחק במסכים קטנים */
-        @media (max-width: 768px) {
-            #gameContainer {
-                width: 88vw;
-                height: 88vw;
-            }
-        }
-
-        #gameCanvas {
-            display: block;
-            background-color: black;
-        }
-
-        #directionButtons {
-            position: relative;
-            width: 150px;
-            height: 150px;
+        canvas {
+            border: 5px solid white;
             margin-top: 20px;
         }
-
-        .button {
-            position: absolute;
+        #score {
+            font-size: 24px;
+            margin: 10px;
+        }
+        .control-button {
             width: 50px;
             height: 50px;
-            background-color: lightgray;
+            margin: 5px;
+            font-size: 24px;
             border: none;
-            font-size: 18px;
-            font-weight: bold;
+            color: white;
+            cursor: pointer;
         }
-
-        .button-up { top: 0; left: 50px; }
-        .button-left { top: 50px; left: 0; }
-        .button-right { top: 50px; left: 100px; }
-        .button-down { top: 100px; left: 50px; }
-
+        .up { background-color: #FF5733; }
+        .down { background-color: #33FF57; }
+        .left { background-color: #3357FF; }
+        .right { background-color: #FF33A1; }
         #restartButton {
             display: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 15px 30px;
-            font-size: 18px;
-            background-color: red;
-            color: white;
-            border: none;
-            cursor: pointer;
-            z-index: 10;
+            margin-top: 20px;
         }
-
-        #rewardMessage {
+        #reward {
             display: none;
             position: absolute;
             top: 50%;
@@ -90,92 +45,75 @@
             transform: translate(-50%, -50%);
             text-align: center;
             font-size: 24px;
-            background-color: white;
-            padding: 20px;
-            border: 2px solid green;
-            z-index: 10;
+            color: #333;
         }
     </style>
 </head>
 <body>
     <div id="score">ניקוד: 0</div>
-    <div id="gameContainer">
-        <canvas id="gameCanvas"></canvas>
-        <button id="restartButton" onclick="restartGame()">אני עדיין רעב, תחזור מיד לשחק!</button>
-        <div id="rewardMessage">
-            <img id="rewardImage" src="rewardImage.png" alt="Reward" style="max-width: 100%; height: auto;">
-            <div id="timer">10</div>
-            <div>הרווחת את זה ביושר! תהנה</div>
+    <canvas id="gameCanvas" width="600" height="400"></canvas>
+    <div id="controls">
+        <button class="control-button up">↑</button>
+        <div>
+            <button class="control-button left">←</button>
+            <button class="control-button right">→</button>
         </div>
+        <button class="control-button down">↓</button>
     </div>
-    <div id="directionButtons">
-        <button class="button button-up" onclick="changeDirection('up')">↑</button>
-        <button class="button button-left" onclick="changeDirection('left')">←</button>
-        <button class="button button-right" onclick="changeDirection('right')">→</button>
-        <button class="button button-down" onclick="changeDirection('down')">↓</button>
+    <button id="restartButton" onclick="restartGame()">אני עדיין רעב, תחזור מיד לשחק!</button>
+    <div id="reward">
+        <img id="rewardImage" src="rewardImage.png" alt="פרס" style="width: 100px; height: auto;">
+        <div>הרווחת את זה ביושר! תהנה</div>
+        <div id="timer"></div>
     </div>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
-        const gameContainer = document.getElementById('gameContainer');
         const ctx = canvas.getContext('2d');
-        const restartButton = document.getElementById('restartButton');
-        const rewardMessage = document.getElementById('rewardMessage');
-        const timerDisplay = document.getElementById('timer');
 
-        // הורדת המהירות הכוללת ב-30% נוספים
-        const baseInterval = (window.innerWidth < 768 ? 170 : 130) * 1.3;
-
-        canvas.width = gameContainer.clientWidth;
-        canvas.height = gameContainer.clientHeight;
-
-        let score = 0;
-        const gridSize = 40;
-        let snake = [{ x: 5, y: 5 }];
+        const gridSize = 20;
+        let snake = [{ x: 8, y: 8 }];
         let snakeDirection = { x: 1, y: 0 };
         let food = { x: Math.floor(Math.random() * (canvas.width / gridSize)), y: Math.floor(Math.random() * (canvas.height / gridSize)) };
+        let score = 0;
         let gameInterval;
+        let gameStarted = false;
         let rewardActive = false;
+        let timer = 10; // טיימר של 10 שניות
+        let speed = 0.15; // מהירות ברירת מחדל
+        let rewardImage = new Image();
+        rewardImage.src = 'rewardImage.png'; // ודא שהקובץ קיים
 
-        const snakeHeadImage = new Image();
-        snakeHeadImage.src = 'snakeHead.png';
-        const foodImage = new Image();
-        foodImage.src = 'burger.png';
-        const rewardImage = new Image();
-        rewardImage.src = 'snakeHead.png'; // כאן יש לשים את התמונה שברצונך להציג
+        // הוספת הצליל
+        const eatSound = new Audio('eatSound.mp3'); // ודא שהקובץ קיים בתיקיה
 
-        function changeDirection(direction) {
-            switch(direction) {
-                case 'up':
-                    if (snakeDirection.y === 0) snakeDirection = { x: 0, y: -1 };
-                    break;
-                case 'down':
-                    if (snakeDirection.y === 0) snakeDirection = { x: 0, y: 1 };
-                    break;
-                case 'left':
-                    if (snakeDirection.x === 0) snakeDirection = { x: -1, y: 0 };
-                    break;
-                case 'right':
-                    if (snakeDirection.x === 0) snakeDirection = { x: 1, y: 0 };
-                    break;
+        // קביעת מהירות
+        function setSpeed() {
+            if (window.innerWidth < 768) { // אם מדובר בטלפון (רוחב קטן מ-768 פיקסלים)
+                speed = 0.20; // מהירות איטית יותר
+            } else {
+                speed = 0.15; // מהירות מהירה יותר
             }
         }
 
-        function drawSnake() {
-            snake.forEach((segment, index) => {
-                if (index === 0) {
-                    ctx.drawImage(snakeHeadImage, segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
-                } else {
-                    ctx.fillStyle = 'white';
-                    ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
-                    ctx.drawImage(foodImage, segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
-                }
-            });
+        // שינוי בתחילת המשחק
+        function startGame() {
+            setSpeed(); // קבע את המהירות בתחילת המשחק
+            snake = [{ x: 8, y: 8 }];
+            snakeDirection = { x: 1, y: 0 };
+            score = 0;
+            document.getElementById('score').innerText = `ניקוד: ${score}`;
+            food = { x: Math.floor(Math.random() * (canvas.width / gridSize)), y: Math.floor(Math.random() * (canvas.height / gridSize)) };
+            document.getElementById('restartButton').style.display = 'none';
+            document.getElementById('reward').style.display = 'none'; // מסתיר את התמונה
+            startGameLoop();
         }
 
-        function drawFood() {
-            ctx.drawImage(foodImage, food.x * gridSize, food.y * gridSize, gridSize, gridSize);
-        }
+        // ניהול כיוונים
+        document.querySelector('.up').onclick = () => { if (snakeDirection.y === 0) snakeDirection = { x: 0, y: -1 }; };
+        document.querySelector('.down').onclick = () => { if (snakeDirection.y === 0) snakeDirection = { x: 0, y: 1 }; };
+        document.querySelector('.left').onclick = () => { if (snakeDirection.x === 0) snakeDirection = { x: -1, y: 0 }; };
+        document.querySelector('.right').onclick = () => { if (snakeDirection.x === 0) snakeDirection = { x: 1, y: 0 }; };
 
         function updateSnake() {
             const newHead = { x: snake[0].x + snakeDirection.x, y: snake[0].y + snakeDirection.y };
@@ -185,7 +123,10 @@
                 score++;
                 document.getElementById('score').innerText = `ניקוד: ${score}`;
                 food = { x: Math.floor(Math.random() * (canvas.width / gridSize)), y: Math.floor(Math.random() * (canvas.height / gridSize)) };
-                
+
+                // נגן את הצליל כשנוגסים בהמבורגר
+                eatSound.play(); 
+
                 // אם הניקוד מגיע ל-5, הצג את התמונה עם הטיימר
                 if (score === 5) {
                     showReward();
@@ -195,67 +136,61 @@
             }
         }
 
+        function checkCollision() {
+            const head = snake[0];
+            // בדוק אם הנחש פוגע בקירות
+            if (head.x < 0 || head.x >= canvas.width / gridSize || head.y < 0 || head.y >= canvas.height / gridSize) {
+                endGame();
+            }
+            // בדוק אם הנחש פוגע בעצמו
+            for (let i = 1; i < snake.length; i++) {
+                if (head.x === snake[i].x && head.y === snake[i].y) {
+                    endGame();
+                }
+            }
+        }
+
+        function drawSnake() {
+            ctx.fillStyle = 'green';
+            for (const segment of snake) {
+                ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
+            }
+        }
+
+        function drawFood() {
+            ctx.drawImage(rewardImage, food.x * gridSize, food.y * gridSize, gridSize, gridSize); // מציג את ההמבורגר
+        }
+
+        function endGame() {
+            cancelAnimationFrame(gameInterval);
+            document.getElementById('restartButton').style.display = 'block';
+        }
+
         function showReward() {
             rewardActive = true;
-            clearInterval(gameInterval);
-            rewardMessage.style.display = 'block';
-            let timer = 10;
-            timerDisplay.innerText = timer;
-
-            const countdown = setInterval(() => {
+            document.getElementById('reward').style.display = 'block';
+            document.getElementById('timer').innerText = `טיימר: ${timer}`;
+            const interval = setInterval(() => {
                 timer--;
-                timerDisplay.innerText = timer;
-
+                document.getElementById('timer').innerText = `טיימר: ${timer}`;
                 if (timer <= 0) {
-                    clearInterval(countdown);
-                    rewardMessage.style.display = 'none';
-                    startGame();
+                    clearInterval(interval);
+                    rewardActive = false;
+                    document.getElementById('reward').style.display = 'none';
                 }
             }, 1000);
         }
 
-        function checkCollision() {
-            const head = snake[0];
-            if (
-                head.x < 0 || head.x >= canvas.width / gridSize ||
-                head.y < 0 || head.y >= canvas.height / gridSize ||
-                snake.slice(1).some(segment => segment.x === head.x && segment.y === head.y)
-            ) {
-                endGame();
-            }
-        }
-
-        function endGame() {
-            clearInterval(gameInterval);
-            restartButton.style.display = 'block';
-        }
-
-        function restartGame() {
-            snake = [{ x: 5, y: 5 }];
-            snakeDirection = { x: 1, y: 0 };
-            score = 0;
-            document.getElementById('score').innerText = `ניקוד: ${score}`;
-            food = { x: Math.floor(Math.random() * (canvas.width / gridSize)), y: Math.floor(Math.random() * (canvas.height / gridSize)) };
-            restartButton.style.display = 'none';
-            startGame();
-        }
-
-        function gameLoop() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        function startGameLoop() {
             updateSnake();
             checkCollision();
-            drawSnake();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             drawFood();
+            drawSnake();
+            gameInterval = setTimeout(startGameLoop, speed * 1000); // עדכון מהירות תנועה
         }
 
-        function startGame() {
-            gameInterval = setInterval(gameLoop, baseInterval);
-            if (rewardActive) {
-                rewardActive = false; // Reset reward state
-            }
-        }
-
-        startGame();
+        startGame(); // התחלת המשחק
     </script>
 </body>
 </html>
