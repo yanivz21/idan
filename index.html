@@ -67,10 +67,10 @@
 <body>
     <canvas id="gameCanvas"></canvas>
     <div class="controls">
-        <button class="up" onclick="changeDirection({key: 'ArrowUp'})">↑</button>
-        <button class="down" onclick="changeDirection({key: 'ArrowDown'})">↓</button>
-        <button class="right" onclick="changeDirection({key: 'ArrowRight'})">→</button>
-        <button class="left" onclick="changeDirection({key: 'ArrowLeft'})">←</button>
+        <button class="up" onclick="setDirection('UP')">↑</button>
+        <button class="down" onclick="setDirection('DOWN')">↓</button>
+        <button class="right" onclick="setDirection('RIGHT')">→</button>
+        <button class="left" onclick="setDirection('LEFT')">←</button>
     </div>
     <script>
         const canvas = document.getElementById('gameCanvas');
@@ -102,16 +102,15 @@
 
         const snakeBodyColor = 'white'; // צבע הגוף
 
-        document.addEventListener('keydown', changeDirection);
-
-        function changeDirection(event) {
-            if (event.key === 'ArrowLeft' && direction !== 'RIGHT') {
+        // פונקציה לשינוי הכיוון
+        function setDirection(newDirection) {
+            if (newDirection === 'LEFT' && direction !== 'RIGHT') {
                 direction = 'LEFT';
-            } else if (event.key === 'ArrowUp' && direction !== 'DOWN') {
+            } else if (newDirection === 'UP' && direction !== 'DOWN') {
                 direction = 'UP';
-            } else if (event.key === 'ArrowRight' && direction !== 'LEFT') {
+            } else if (newDirection === 'RIGHT' && direction !== 'LEFT') {
                 direction = 'RIGHT';
-            } else if (event.key === 'ArrowDown' && direction !== 'UP') {
+            } else if (newDirection === 'DOWN' && direction !== 'UP') {
                 direction = 'DOWN';
             }
         }
